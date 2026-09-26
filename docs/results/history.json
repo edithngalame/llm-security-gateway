@@ -1,0 +1,12 @@
+[
+  {
+    "version": "v0.1",
+    "date": "2026-09-26",
+    "dataset": "demo_traffic.jsonl",
+    "recall": 0.5625,
+    "precision": 0.8571428571428571,
+    "fpr": 0.13043478260869565,
+    "n": 55,
+    "p95_latency_ms": 0.058
+  }
+]

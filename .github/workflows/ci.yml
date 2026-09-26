@@ -1,0 +1,25 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check src tests scripts
+      - run: pytest -q
+
+      # Replay the sample traffic on every push. The report appears on the run's
+      # summary page, so you can see whether a change made detection better or worse.
+      - name: Backtest
+        run: |
+          python -m gateway.backtest data/samples/demo_traffic.jsonl \
+            --out backtest.md --json backtest.json --html backtest.html
+          cat backtest.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backtest-report
+          path: backtest.*
