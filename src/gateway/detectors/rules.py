@@ -21,7 +21,7 @@ from gateway.detectors.base import Finding, Source, Verdict
 # Characters attackers use to split keywords so regexes miss them
 # ("ig​nore previous instructions").
 _INVISIBLE = dict.fromkeys(
-    map(ord, "​‌‍⁠﻿­᠎"), None
+    map(ord, "\u200b‌‍⁠﻿­᠎"), None
 )
 
 

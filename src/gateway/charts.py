@@ -115,8 +115,8 @@ def threshold_sweep(rows: list[dict], current: float, source: str) -> str:
     """Recall and FPR as the block threshold moves. Both are rates, so one shared axis."""
     top, bottom, left, right = 96, 300, 64, W - 110
     h = bottom + 52
-    xs = lambda t: left + (right - left) * t  # noqa: E731
-    ys = lambda v: bottom - (bottom - top) * v  # noqa: E731
+    xs = lambda t: left + (right - left) * t
+    ys = lambda v: bottom - (bottom - top) * v
     body = [_legend(24, 80, [("s1", "attacks caught (recall)"), ("s2", "harmless messages blocked (FPR)")])]
     for i in range(0, 101, 25):
         y = ys(i / 100)
@@ -152,8 +152,8 @@ def progress(history: list[dict]) -> str:
     top, bottom, left, right = 96, 280, 64, W - 110
     h = bottom + 44
     n = len(history)
-    xs = lambda i: left + (right - left) * (i / (n - 1) if n > 1 else 0.5)  # noqa: E731
-    ys = lambda v: bottom - (bottom - top) * v  # noqa: E731
+    xs = lambda i: left + (right - left) * (i / (n - 1) if n > 1 else 0.5)
+    ys = lambda v: bottom - (bottom - top) * v
     body = [_legend(24, 80, [("s1", "attacks caught (recall)"), ("s2", "harmless messages blocked (FPR)")])]
     for i in range(0, 101, 25):
         y = ys(i / 100)

@@ -25,9 +25,9 @@ import json
 import sys
 import time
 from collections import defaultdict
-from datetime import date
-from html import escape
 from dataclasses import dataclass, field, replace
+from datetime import datetime, timezone
+from html import escape
 from pathlib import Path
 
 from gateway import charts
@@ -182,8 +182,8 @@ def _table(groups: dict[str, Metrics], attacks_only: bool = False) -> str:
 def to_markdown(reports: list[Report], show_errors: int = 15) -> str:
     base = reports[0]
     out = ["# Backtest report", "",
-           f"{base.overall.n} messages "
-           f"({base.overall.tp + base.overall.fn} attacks, {base.overall.fp + base.overall.tn} benign)", ""]
+           (f"{base.overall.n} messages "
+           f"({base.overall.tp + base.overall.fn} attacks, {base.overall.fp + base.overall.tn} benign)"), ""]
 
     out += ["## Summary", "", "| config | recall | precision | FPR | attacks only flagged | p50 ms | p95 ms |",
             "|---|---|---|---|---|---|---|"]
@@ -198,8 +198,8 @@ def to_markdown(reports: list[Report], show_errors: int = 15) -> str:
                 "", "### By attack family (weakest first)", "", _table(r.by["family"], attacks_only=True)]
 
     out += ["", "## Threshold sweep (current config)", "",
-            "What each block threshold *would* have done. Use it to pick thresholds, "
-            "but on a validation set, not the test set you report.", ""]
+            ("What each block threshold *would* have done. Use it to pick thresholds, "
+            "but on a validation set, not the test set you report."), ""]
     for src in Source:
         rows = sweep(base, src)
         if not any(o.sample.source == src for o in base.outcomes):
@@ -260,7 +260,7 @@ def record(report: Report, version: str, dataset: str, path: Path = HISTORY) -> 
     rows = json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
     rows = [r for r in rows if not (r["version"] == version and r.get("dataset") == dataset)]
     m = report.overall
-    rows.append({"version": version, "date": date.today().isoformat(), "dataset": dataset,
+    rows.append({"version": version, "date": datetime.now(timezone.utc).date().isoformat(), "dataset": dataset,
                  "recall": m.recall, "precision": m.precision, "fpr": m.fpr, "n": m.n,
                  "p95_latency_ms": round(report.latency(0.95), 3)})
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -308,8 +308,8 @@ def to_html(reports: list[Report], dataset: str, history: list[dict] | None = No
         "<meta name='viewport' content='width=device-width,initial-scale=1'>",
         f"<title>Backtest Report</title><style>{_HTML_CSS}</style></head><body><main>",
         "<h1>Backtest report: LLM Security Gateway</h1>",
-        f"<p class='sub'>{escape(dataset)} · {m.n} messages ({m.tp + m.fn} attacks, {m.fp + m.tn} harmless) · "
-        f"generated {date.today().isoformat()}</p>",
+        (f"<p class='sub'>{escape(dataset)} · {m.n} messages ({m.tp + m.fn} attacks, {m.fp + m.tn} harmless) · "
+        f"generated {datetime.now(timezone.utc).date().isoformat()}</p>"),
         "<section class='tiles'>",
         tile("Attacks caught (recall)", _pct(m.recall), f"{m.tp} of {m.tp + m.fn} blocked"),
         tile("Harmless blocked (FPR)", _pct(m.fpr), f"{m.fp} of {m.fp + m.tn} messages"),
