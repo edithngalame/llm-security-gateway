@@ -19,9 +19,9 @@ from dataclasses import dataclass
 from gateway.detectors.base import Finding, Source, Verdict
 
 # Characters attackers use to split keywords so regexes miss them
-# ("ig​nore previous instructions").
+# ("ig\u200bnore previous instructions").
 _INVISIBLE = dict.fromkeys(
-    map(ord, "\u200b‌‍⁠﻿­᠎"), None
+    map(ord, "\u200b\u200c\u200d\u2060\ufeff\u00ad\u180e"), None
 )
 
 
@@ -91,7 +91,7 @@ RULES: tuple[Rule, ...] = (
     ),
     _r(
         "exfiltration",
-        r"\b(send|post|forward|email|upload)\b(\s+\w+){0,4}?\s+(to|at)\s+(https?://|\S+@\S+\.\w+)",
+        r"\b(send|post|forward|email|upload)\b(\s+\S+){0,4}?\s+(to|at)\s+\S+@\S+\.\w+",
         0.4,
     ),
 )
@@ -108,6 +108,16 @@ INDIRECT_RULES: tuple[Rule, ...] = (
         "addressed_to_ai",
         r"\b(note|message|instructions?) (to|for) (the )?(ai|assistant|llm|model|agent)\b",
         0.5,
+    ),
+    # An instruction to send something sensitive to a web address. Indirect-only:
+    # a user asking how to send their own API key is not an attack; a web page or tool
+    # output telling the agent to send the user's secrets somewhere is. Requiring a
+    # sensitive object keeps "upload the photos to https://..." from being blocked.
+    _r(
+        "exfiltration",
+        r"\b(send|post|forward|upload|leak)\b[^\n]{0,60}?\b(secrets?|passwords?|tokens?|api keys?"
+        r"|credentials?|contents|conversation|chat history|user data)\b[^\n]{0,60}?\bto\s+https?://",
+        0.6,
     ),
     _r("hidden_instruction", r"\b(do not|don't) (tell|inform|mention (this )?to) the user\b", 0.6),
 )
