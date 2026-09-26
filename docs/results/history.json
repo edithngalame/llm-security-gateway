@@ -8,5 +8,15 @@
     "fpr": 0.13043478260869565,
     "n": 55,
     "p95_latency_ms": 0.058
+  },
+  {
+    "version": "v0.1.1",
+    "date": "2026-09-26",
+    "dataset": "demo_traffic.jsonl",
+    "recall": 0.59375,
+    "precision": 0.8636363636363636,
+    "fpr": 0.13043478260869565,
+    "n": 55,
+    "p95_latency_ms": 0.051
   }
 ]
