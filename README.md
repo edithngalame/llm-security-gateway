@@ -1,5 +1,7 @@
 # LLM Security Gateway
 
+   [![CI](https://github.com/edithngalame/llm-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/edithngalame/llm-security-gateway/actions/workflows/ci.yml) · **[Live backtest report](https://edithngalame.github.io/llm-security-gateway/report/)**
+
 A security layer for LLM applications and AI agents. It detects **prompt injection** in English and Spanish, including the harder *indirect* kind hidden in documents, web pages, tool outputs and MCP tool descriptions. It **limits what a compromised agent can do** through taint tracking and tool permissions, and it catches **system prompt and data leakage** in responses.
 
 > Status: 🚧 v0.1 released: rule-based baseline, canary tokens, scan API, live dashboard, backtesting, threat model. See the [roadmap](docs/roadmap.md).
@@ -16,7 +18,7 @@ See the full [threat model](docs/threat-model.md).
 
 *The live dashboard while the traffic simulator streams English and Spanish messages. Every decision appears with its score and the reason it was made.*
 
-Where the v0.1 rule baseline fails, measured by backtest (full interactive report: [`docs/report/index.html`](docs/report/index.html)):
+   Where the v0.1 rule baseline fails, measured by backtest ([full interactive report](https://edithngalame.github.io/llm-security-gateway/report/)):
 
 <p>
   <img src="docs/img/family_recall.svg" alt="Attacks caught by attack family" width="49%">
