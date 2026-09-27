@@ -61,7 +61,9 @@ The foundation for everything else, and a publishable asset in its own right.
 
 **Done when**
 - [x] Baselines measured ([notebook 05](../notebooks/05_baselines.ipynb)): rules, TF-IDF + LR, ProtectAI open detector. They exposed two dataset bugs, fixed in v0.2.1
-- [ ] Results table in README with every baseline and the fine-tuned model, and the progress chart updated
+- [x] Fine-tuned mDeBERTa-v3 ([notebook 06](../notebooks/06_finetune_mdeberta.ipynb)): results table and chart in README
+- [ ] Hard benign false positives reduced (65% at first fine-tune)
+- [ ] ONNX export + gateway integration, CPU latency measured
 - [ ] The `xfail` known-limitation tests flip to passing (or honestly explained if not)
 - [ ] Model card on Hugging Face
 
