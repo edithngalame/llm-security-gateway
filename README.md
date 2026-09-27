@@ -154,8 +154,10 @@ Scoped to **v0.4 plus a write-up**: a published multilingual dataset, a trained 
 - [ ] **v0.4 Agent security**: OpenAI-compatible proxy, taint tracking, tool permissions, hijacked-vs-protected agent demo
 - [ ] **Wrap-up**: technical write-up and demo video
 
-**Future work** (parked on purpose): adversarial evaluation with an adaptive attacker, shadow mode, PII scanning, MCP registration scanning, PyPI package and framework integrations, compliance reporting, hosted demo.
+**Future work** (parked on purpose): over-defense fix with hard negatives, adversarial evaluation with an adaptive attacker, shadow mode, PII scanning, MCP registration scanning, PyPI package and framework integrations, compliance reporting, hosted demo.
 
 ## Known limitations
 
 Documented as `xfail` tests in [`tests/test_known_limitations.py`](tests/test_known_limitations.py): the rule layer misses paraphrases and non-English attacks, and misfires on some benign phrasing. These cases are the motivation for the classifier.
+
+The fine-tuned classifier (v0.3) closes most of those gaps but **over-defends**: it blocks 65% of hard benign messages (harmless text that talks about AI, rules or instructions), because the training data has almost no such examples. Adding hard negatives and testing on the public [NotInject](https://huggingface.co/datasets/leolee99/NotInject) benchmark is the planned fix (see [Future work](docs/roadmap.md#future-work)). Until then, the gateway can route the classifier's decisions on user messages to *flag* rather than *block*.

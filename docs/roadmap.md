@@ -62,7 +62,7 @@ The foundation for everything else, and a publishable asset in its own right.
 **Done when**
 - [x] Baselines measured ([notebook 05](../notebooks/05_baselines.ipynb)): rules, TF-IDF + LR, ProtectAI open detector. They exposed two dataset bugs, fixed in v0.2.1
 - [x] Fine-tuned mDeBERTa-v3 ([notebook 06](../notebooks/06_finetune_mdeberta.ipynb)): results table and chart in README
-- [ ] Hard benign false positives reduced (65% at first fine-tune)
+- [x] Over-defense measured and documented: 65% of hard benign messages blocked. Fix parked under Future work
 - [ ] ONNX export + gateway integration, CPU latency measured
 - [ ] The `xfail` known-limitation tests flip to passing (or honestly explained if not)
 - [ ] Model card on Hugging Face
@@ -98,6 +98,7 @@ Parked on purpose to keep the project focused. Each could become its own release
 
 - **Adversarial evaluation**: garak and promptfoo runs, an adaptive LLM attacker, a public leaderboard
 - **Shadow mode and traffic capture**: test a new detector on live traffic without enforcing it
+- **Over-defense fix**: hard-negative training data (harmless EN + ES text that mentions AI, rules or instructions, separate lists per split) and [NotInject](https://huggingface.co/datasets/leolee99/NotInject) (339 benign prompts with trigger words, MIT) as an external over-defense test set
 - **PII and secret scanning** of responses (Presidio)
 - **Tool-output and MCP tool-description attack data** for the dataset (v0.4's tool permissions cover this risk in the meantime), and MCP description scanning at tool registration time
 - **Easy adoption**: PyPI package, LangChain / LlamaIndex integrations
