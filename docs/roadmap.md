@@ -10,7 +10,7 @@ Each release has a "done when" checklist. A release isn't done until every box i
 |---|---|
 | v0.1 Foundation | ✅ released (v0.1, v0.1.1) |
 | v0.2 Multilingual dataset | ✅ released (v0.2, v0.2.1) |
-| v0.3 Classifier & benchmark | 🚧 next |
+| v0.3 Classifier & benchmark | 🚧 in progress (baselines done) |
 | v0.4 Agent security (core) | planned |
 | Wrap-up: write-up + demo | planned |
 
@@ -60,7 +60,8 @@ The foundation for everything else, and a publishable asset in its own right.
 - Run the hand-written red-team and Spanish sets against the model (the lightweight part of the parked adversarial evaluation)
 
 **Done when**
-- [ ] Results table in README with every baseline, and the progress chart updated
+- [x] Baselines measured ([notebook 05](../notebooks/05_baselines.ipynb)): rules, TF-IDF + LR, ProtectAI open detector. They exposed two dataset bugs, fixed in v0.2.1
+- [ ] Results table in README with every baseline and the fine-tuned model, and the progress chart updated
 - [ ] The `xfail` known-limitation tests flip to passing (or honestly explained if not)
 - [ ] Model card on Hugging Face
 
