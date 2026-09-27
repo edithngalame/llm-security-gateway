@@ -120,23 +120,29 @@ First backtest of the rule baseline on the 55-message demo sample (small and ill
 
 ## Results
 
-### Baselines (v0.3, on dataset v0.2.1)
+### Fine-tuned model vs baselines (v0.3, on dataset v0.2.1)
 
-Three detectors, scored the same way ([notebook 05](notebooks/05_baselines.ipynb), [raw results](docs/results/baselines/)). Learned detectors pick their block threshold on `validation` only, for at most 1% of harmless messages blocked there.
+Four detectors, scored the same way ([notebook 05](notebooks/05_baselines.ipynb) for the baselines, [notebook 06](notebooks/06_finetune_mdeberta.ipynb) for the fine-tuned model; raw results in [docs/results](docs/results/)). Learned detectors pick their block threshold on `validation` only, for at most 1% of harmless messages blocked there.
 
-![Baselines](docs/img/baselines.png)
+![Fine-tuned model vs baselines](docs/img/finetuned_vs_baselines.png)
 
 | Detector | Recall: test | FPR: test | Recall: human Spanish | Recall: unseen attack styles | FPR: hard benign | FPR: harmless emails | CPU ms/text |
 |---|---|---|---|---|---|---|---|
 | Rules (this repo, v0.1) | 24% | 0% | 0% | 0% | 27% | 0% | 0.3 |
 | TF-IDF + logistic regression | **90%** | 6.8% | 27% | **48%** | 23% | 16% | 2.9 |
 | [ProtectAI deberta-v3 v2](https://huggingface.co/protectai/deberta-v3-base-prompt-injection-v2) (open source) | 77% | **3.8%** | **77%** | 10% | 38% | **9.6%** | 290 |
-| Fine-tuned mDeBERTa-v3 (this repo) | *next* | | | | | | |
+| **Fine-tuned mDeBERTa-v3 (this repo)** | **98%** | **3.7%** | **77%** | **78%** | 65% | **6.4%** | 306 |
+
+**What fine-tuning bought**
+- **Best or tied-best on every attack column**: 98% of test attacks, 78% of attacks in unseen styles (TF-IDF: 48%, ProtectAI: 10%), and 91% of attacks in German, French, Italian and Portuguese, languages it never saw labelled examples in. That last number is the multilingual pre-training at work.
+- **Lowest false-alarm rates on test and on harmless emails.**
+- **Weaknesses, measured:** it blocks 65% of *hard benign* messages (harmless text that talks about AI, rules or instructions). The training data has almost none of these, so the model learned "mentions instructions = attack". It's also as slow as ProtectAI on CPU (306 ms). Hard negatives in training and ONNX export are the next steps.
+- Targets: unseen styles ≥ 70% **met**. Human Spanish 77% (target 80%: one more of 26 attacks), harmless-email FPR 6.4% (target 5%) and test FPR 3.7% (target 2%) **missed**.
 
 **What the baselines show**
 - **No baseline is good enough.** TF-IDF does well on data like its training set but learned *wording*, not intent: it drops to 27% on human-translated Spanish and 48% on unseen attack styles. ProtectAI (English-only by design) misses 90% of attacks hidden in emails, blocks over a third of hard benign messages and takes 290 ms per message on CPU.
 - **The baselines found two bugs in my own dataset.** In v0.2, `validation` contained no emails, so thresholds tuned on it blocked ~9% of harmless test emails. And TF-IDF had memorised the 25 harmless email sentences shared by train and test. Dataset [v0.2.1](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es) fixes both. The honest numbers are lower: TF-IDF's recall on unseen attack styles fell from 89% to 48%.
-- **Targets for the fine-tuned model:** beat the best baseline on every column, with at least 80% recall on human Spanish, 70% on unseen styles, at most 5% FPR on harmless emails, and under 50 ms per message on CPU after ONNX export.
+- **Targets set for the fine-tuned model:** at least 80% recall on human Spanish, 70% on unseen styles, at most 5% FPR on harmless emails, and under 50 ms per message on CPU after ONNX export.
 
 ## Roadmap
 
@@ -148,8 +154,10 @@ Scoped to **v0.4 plus a write-up**: a published multilingual dataset, a trained 
 - [ ] **v0.4 Agent security**: OpenAI-compatible proxy, taint tracking, tool permissions, hijacked-vs-protected agent demo
 - [ ] **Wrap-up**: technical write-up and demo video
 
-**Future work** (parked on purpose): adversarial evaluation with an adaptive attacker, shadow mode, PII scanning, MCP registration scanning, PyPI package and framework integrations, compliance reporting, hosted demo.
+**Future work** (parked on purpose): over-defense fix with hard negatives, adversarial evaluation with an adaptive attacker, shadow mode, PII scanning, MCP registration scanning, PyPI package and framework integrations, compliance reporting, hosted demo.
 
 ## Known limitations
 
 Documented as `xfail` tests in [`tests/test_known_limitations.py`](tests/test_known_limitations.py): the rule layer misses paraphrases and non-English attacks, and misfires on some benign phrasing. These cases are the motivation for the classifier.
+
+The fine-tuned classifier (v0.3) closes most of those gaps but **over-defends**: it blocks 65% of hard benign messages (harmless text that talks about AI, rules or instructions), because the training data has almost no such examples. Adding hard negatives and testing on the public [NotInject](https://huggingface.co/datasets/leolee99/NotInject) benchmark is the planned fix (see [Future work](docs/roadmap.md#future-work)). Until then, the gateway can route the classifier's decisions on user messages to *flag* rather than *block*.
