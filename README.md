@@ -1,10 +1,10 @@
 # LLM Security Gateway
 
-   [![CI](https://github.com/edithngalame/llm-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/edithngalame/llm-security-gateway/actions/workflows/ci.yml) · **[Live backtest report](https://edithngalame.github.io/llm-security-gateway/report/)**
+[![CI](https://github.com/edithngalame/llm-security-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/edithngalame/llm-security-gateway/actions/workflows/ci.yml) · **[Live backtest report](https://edithngalame.github.io/llm-security-gateway/report/)**
 
 A security layer for LLM applications and AI agents. It detects **prompt injection** in English and Spanish, including the harder *indirect* kind hidden in documents, web pages, tool outputs and MCP tool descriptions. It **limits what a compromised agent can do** through taint tracking and tool permissions, and it catches **system prompt and data leakage** in responses.
 
-> Status: 🚧 v0.1 released: rule-based baseline, canary tokens, scan API, live dashboard, backtesting, threat model. See the [roadmap](docs/roadmap.md).
+> Status: v0.1.1 released (rule baseline, canary tokens, scan API, live dashboard, backtesting, threat model). 🚧 v0.2 multilingual dataset in progress. See the [roadmap](docs/roadmap.md).
 
 ## Why
 
@@ -43,7 +43,7 @@ User / app ──► Gateway ──► LLM ──► Gateway ──► back to u
 Detection layers (any layer can block):
 1. **Rules**: normalisation (Unicode, zero-width chars, base64) + transparent patterns. Fast, explainable baseline.
 2. **Classifier** *(v0.3)*: fine-tuned multilingual mDeBERTa-v3, exported to ONNX.
-3. **Output checks**: canary tokens planted in the system prompt; PII scanning *(v0.4)*.
+3. **Output checks**: canary tokens planted in the system prompt; markdown-image exfiltration stripping *(v0.4)*.
 4. **Action control** *(v0.4)*: once untrusted content enters a session, high-risk tools are blocked or need human approval, even when no attack was detected.
 
 ## Quickstart
@@ -121,16 +121,15 @@ First backtest of the rule baseline on the 55-message demo sample (small and ill
 
 ## Roadmap
 
-Each release is complete and usable on its own. Details and "done when" criteria in [docs/roadmap.md](docs/roadmap.md).
+Scoped to **v0.4 plus a write-up**: a published multilingual dataset, a trained detector with measured results, and a live agent demo. Details and "done when" criteria in [docs/roadmap.md](docs/roadmap.md).
 
 - [x] **v0.1 Foundation**: rules baseline, canary tokens, `/v1/scan`, live dashboard, backtesting, threat model, CI
-- [ ] **v0.2 Multilingual dataset**: direct + indirect + MCP tool poisoning, English + Spanish, hard benign, published on Hugging Face
-- [ ] **v0.3 Classifier & benchmark**: fine-tuned mDeBERTa-v3 (ONNX) vs. open-source detectors
-- [ ] **v0.4 Agent security**: OpenAI-compatible proxy, taint tracking, tool permission policy, output PII scanning
-- [ ] **v0.5 Adversarial evaluation**: garak, promptfoo, adaptive LLM attacker, public leaderboard
-- [ ] **v0.6 Adoption**: PyPI package, LangChain / LlamaIndex integrations
-- [ ] **v0.7 Compliance**: audit reports mapped to OWASP, NIST AI RMF, EU AI Act
-- [ ] **v1.0 Launch**: live demo, write-up, video
+- [ ] **v0.2 Multilingual dataset** 🚧: direct + indirect + tool attacks, English + Spanish, hard benign, shortcut fixes, published on Hugging Face
+- [ ] **v0.3 Classifier & benchmark**: fine-tuned mDeBERTa-v3 (ONNX) vs. baselines, per-language and per-source results
+- [ ] **v0.4 Agent security**: OpenAI-compatible proxy, taint tracking, tool permissions, hijacked-vs-protected agent demo
+- [ ] **Wrap-up**: technical write-up and demo video
+
+**Future work** (parked on purpose): adversarial evaluation with an adaptive attacker, shadow mode, PII scanning, MCP registration scanning, PyPI package and framework integrations, compliance reporting, hosted demo.
 
 ## Known limitations
 
