@@ -1,8 +1,18 @@
 # Roadmap
 
-Built as a series of releases. **Each release is finished, tagged and demo-able on its own**, so the project is portfolio-ready at every stage, not only at the end.
+Built as a series of releases. **Each release is finished, tagged and demo-able on its own.**
+
+The project is scoped to **v0.4 plus a write-up**. That's the point where it tells a complete story: a published multilingual dataset, a trained detector with measured results, and a live demo of an AI agent that is hijacked without the gateway and safe with it. Later ideas are listed under [Future work](#future-work): they're deliberately parked, not forgotten.
 
 Each release has a "done when" checklist. A release isn't done until every box is ticked, including the README update.
+
+| Release | Status |
+|---|---|
+| v0.1 Foundation | ✅ released (v0.1, v0.1.1) |
+| v0.2 Multilingual dataset | 🚧 in progress |
+| v0.3 Classifier & benchmark | planned |
+| v0.4 Agent security (core) | planned |
+| Wrap-up: write-up + demo | planned |
 
 ---
 
@@ -16,110 +26,83 @@ Rule-based baseline, canary tokens, `/v1/scan` API, threat model, tests, Docker,
 - [x] Threat model mapped to OWASP LLM Top 10 + MITRE ATLAS
 - [x] Live dashboard (`/dashboard`) + traffic simulator
 - [x] Backtest engine: metrics by source / language / family, threshold sweep, what-if comparison, runs in CI
-- [ ] Tests green locally and in GitHub Actions
-- [ ] Pushed to GitHub, tagged `v0.1`
+- [x] Tests green locally and in GitHub Actions
+- [x] Pushed to GitHub, tagged `v0.1`; first fix released as `v0.1.1` through a PR
 
 ---
 
-## v0.2 — Multilingual attack dataset
+## v0.2 — Multilingual attack dataset 🚧
 The foundation for everything else, and a publishable asset in its own right.
 
 **Scope**
-- Direct injection (public datasets) + **indirect injection** (BIPIA-style: attacks embedded in emails, web pages, documents)
-- **Poisoned MCP tool descriptions**: malicious instructions hidden in tool metadata
-- **Spanish** coverage: translated attacks reviewed by a fluent Spanish speaker, plus native Spanish attacks written from scratch, not only machine translation
-- **Hard benign** set: harmless text that looks like attacks, in both languages
-- Splits that **hold out entire attack families** to measure generalisation
+- Direct injection (public datasets) + **indirect injection** (BIPIA: attacks embedded in emails)
+- **Spanish** coverage: machine-translated attacks *and* matching harmless texts (same translator, so translation style can't become a shortcut), plus a human-translated and adapted Spanish test set
+- **Shortcut fixes**: "Spanish = safe" and "email = attack" both measured and corrected
+- **Hard benign** examples: harmless text that looks like attacks, in both languages
+- Held-out evaluation sets: unseen attack styles, other languages, hand-written sets
+- **Tool outputs and poisoned MCP tool descriptions** (small, targeted set)
 
 **Done when**
-- [ ] Reproducible Colab notebook builds the dataset from sources
-- [ ] Dataset card: sources, licences, label definitions, known biases
-- [ ] Published on Hugging Face under your account
-- [ ] Deduplication check: no near-duplicates leak between train and test
+- [x] Reproducible Colab notebooks build the dataset from licensed sources (01 collect, 02 splits + Spanish)
+- [x] Deduplication and leakage check: no text appears in more than one split
+- [ ] Notebook 03: tool outputs + poisoned MCP tool descriptions
+- [ ] Dataset card: sources, licences, label definitions, known biases and limitations
+- [ ] Published on Hugging Face under `edithngalame`
 
 ---
 
 ## v0.3 — Classifier + first benchmark
 **Scope**
-- Baselines: rules, TF-IDF + logistic regression, Meta Prompt Guard, ProtectAI DeBERTa
+- Baselines: rules, TF-IDF + logistic regression, and at least one open-source detector
 - Fine-tune **mDeBERTa-v3-base** (the multilingual variant: plain DeBERTa-v3 is English-only) on Colab T4
-- Export to ONNX, integrate as a second detector layer
-- Metrics per source and per language: precision, recall, FPR on hard benign, p50/p95 latency on CPU
-- Backtest compares rules vs. rules + classifier on the v0.2 test split (`--detectors` option)
-- Dashboard shows which detector layer made each decision
+- Export to ONNX, integrate as a second detector layer in the gateway
+- Metrics per source and per language: recall, precision, false-positive rate on hard benign, CPU latency
+- Check the remaining email bias: false-positive rate on harmless emails
+- Run the hand-written red-team and Spanish sets against the model (the lightweight part of the parked adversarial evaluation)
 
 **Done when**
-- [ ] Results table in README with every baseline
+- [ ] Results table in README with every baseline, and the progress chart updated
 - [ ] The `xfail` known-limitation tests flip to passing (or honestly explained if not)
 - [ ] Model card on Hugging Face
 
 ---
 
-## v0.4 — Agent security layer
+## v0.4 — Agent security (core)
 The release that turns this from "a classifier" into "a security layer for AI agents".
 
 **Scope**
 - OpenAI-compatible `/v1/chat/completions` proxy (apps switch by changing one URL)
-- Output scanning: canary check, PII and secrets (Presidio + secret patterns), markdown-image exfiltration stripping
 - **Taint tracking**: once untrusted content (retrieved docs, tool output) enters a session, the session is marked tainted
-- **Tool permission policy**: each tool declares a risk level; high-risk tools (send email, HTTP POST, write DB) are blocked or require human approval in tainted sessions, *even if no attack was detected*
-- **MCP tool description scanning** when an agent registers tools
-- Demo: a small email-assistant agent that gets hijacked without the gateway and doesn't with it
-- **Shadow mode**: run a new detector or threshold on live traffic without enforcing it, log what it *would* have decided, and compare against the enforced config on the dashboard. The real-time counterpart of backtesting
-- **Opt-in traffic capture** for backtests (off by default, retention limit, redaction), so real traffic can be replayed without breaking the "no raw text in logs" rule
-- Dashboard: sessions view showing taint status and tool calls blocked or held for approval
+- **Tool permission policy**: high-risk tools (send email, HTTP requests, write data) are blocked or need human approval in tainted sessions, *even if no attack was detected*
+- Output checks: canary leak detection and markdown-image exfiltration stripping
+- **Demo**: a small email-assistant agent that gets hijacked without the gateway and doesn't with it
 
 **Done when**
 - [ ] Policy config file (YAML) documented with examples
 - [ ] End-to-end demo recorded as a GIF in the README
-- [ ] Threat model updated with residual risks of the taint approach
+- [ ] Threat model updated with the residual risks of the taint approach
 
 ---
 
-## v0.5 — Adversarial evaluation & public benchmark
-**Scope**
-- Static red-teaming with garak and promptfoo
-- **Adaptive attacker**: an LLM that rewrites attacks against the full gateway until they pass; report attempts-to-bypass
-- Attack success rate against the demo agent: no protection / rules only / full gateway / full gateway + taint policy
-- Publish the benchmark: dataset + evaluation script + leaderboard others can submit to
-
-**Done when**
-- [ ] Results reproducible with one command
-- [ ] Honest section in README: what still gets through, and why
+## Wrap-up — write-up and demo
+- Technical write-up (blog post or README section): problem, design decisions, results, limitations
+- Short demo video or GIF of the agent demo
+- README polished for a reader with three minutes
 
 ---
 
-## v0.6 — Easy adoption
-**Scope**
-- `pip install` package on PyPI
-- One-line integrations for LangChain and LlamaIndex
-- CPU latency target: p95 under ~30 ms for the classifier on typical inputs (measure, then decide)
-- Docker image published
+## Future work
+Parked on purpose to keep the project focused. Each could become its own release if a job or client needs it.
 
-**Done when**
-- [ ] "Protect your app in 5 minutes" quickstart works on a clean machine
-
----
-
-## v0.7 — Compliance reporting
-**Scope**
-- Audit report generated from gateway logs: blocked/flagged events over time, by category and source
-- Mapping of controls to OWASP LLM Top 10, NIST AI RMF and the EU AI Act
-- Exportable as PDF for non-technical stakeholders
-
-**Done when**
-- [ ] Sample report in the repo, generated from the demo agent's traffic
-- [ ] Mapping reviewed against the current official texts (these frameworks change)
-
----
-
-## v1.0 — Launch
-- Live hosted demo + public dashboard (synthetic traffic from the simulator, running 24/7)
-- Technical write-up (blog post): problem, design, results, limitations
-- 3-minute demo video
-- Posted on LinkedIn, relevant subreddits and communities
+- **Adversarial evaluation**: garak and promptfoo runs, an adaptive LLM attacker, a public leaderboard
+- **Shadow mode and traffic capture**: test a new detector on live traffic without enforcing it
+- **PII and secret scanning** of responses (Presidio)
+- **MCP tool description scanning** at tool registration time
+- **Easy adoption**: PyPI package, LangChain / LlamaIndex integrations
+- **Compliance reporting**: audit reports mapped to OWASP, NIST AI RMF and the EU AI Act
+- **Hosted demo**: public dashboard running on synthetic traffic
 
 ---
 
 ## Freelance checkpoint
-After **v0.4** you have enough to offer a paid service: "AI agent security review": threat-model a client's chatbot or agent, test it with your harness, deliver findings and a hardening plan.
+After **v0.4** there's enough to offer a paid service: an *AI agent security review*. Threat-model a client's chatbot or agent, test it with the red-team sets and backtests, and deliver findings plus a hardening plan.
