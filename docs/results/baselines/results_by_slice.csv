@@ -1,0 +1,70 @@
+detector,eval_set,slice,n,attacks,benign,recall,precision,fpr
+Rules (v0.1),test,all,2041,297,1744,0.23905723905723905,1.0,0.0
+Rules (v0.1),test,lang=en,1239,176,1063,0.4034090909090909,1.0,0.0
+Rules (v0.1),test,lang=es,802,121,681,0.0,,0.0
+Rules (v0.1),test,source=user,1065,297,768,0.23905723905723905,1.0,0.0
+Rules (v0.1),test,source=retrieved,976,0,976,,,0.0
+Rules (v0.1),test,harmless emails,406,0,406,,,0.0
+Rules (v0.1),test_heldout,all,642,642,0,0.0,,
+Rules (v0.1),test_heldout,lang=en,495,495,0,0.0,,
+Rules (v0.1),test_heldout,lang=es,147,147,0,0.0,,
+Rules (v0.1),test_heldout,source=retrieved,642,642,0,0.0,,
+Rules (v0.1),test_native_es,all,32,26,6,0.0,,0.0
+Rules (v0.1),test_native_es,lang=es,32,26,6,0.0,,0.0
+Rules (v0.1),test_native_es,source=user,18,14,4,0.0,,0.0
+Rules (v0.1),test_native_es,source=retrieved,10,8,2,0.0,,0.0
+Rules (v0.1),test_native_es,hard benign,6,0,6,,,0.0
+Rules (v0.1),test_other_lang,all,319,127,192,0.03937007874015748,1.0,0.0
+Rules (v0.1),test_other_lang,source=user,319,127,192,0.03937007874015748,1.0,0.0
+Rules (v0.1),eval_handwritten,all,69,41,28,0.4634146341463415,0.7307692307692307,0.25
+Rules (v0.1),eval_handwritten,lang=en,55,32,23,0.59375,0.7307692307692307,0.30434782608695654
+Rules (v0.1),eval_handwritten,lang=es,13,8,5,0.0,,0.0
+Rules (v0.1),eval_handwritten,source=user,48,29,19,0.3793103448275862,0.6470588235294118,0.3157894736842105
+Rules (v0.1),eval_handwritten,source=retrieved,15,9,6,0.5555555555555556,0.8333333333333334,0.16666666666666666
+Rules (v0.1),eval_handwritten,hard benign,20,0,20,,0.0,0.35
+TF-IDF + LR,test,all,2041,297,1744,0.898989898989899,0.6935064935064935,0.0676605504587156
+TF-IDF + LR,test,lang=en,1239,176,1063,0.9147727272727273,0.6264591439688716,0.09031044214487301
+TF-IDF + LR,test,lang=es,802,121,681,0.8760330578512396,0.828125,0.032305433186490456
+TF-IDF + LR,test,source=user,1065,297,768,0.898989898989899,1.0,0.0
+TF-IDF + LR,test,source=retrieved,976,0,976,,0.0,0.12090163934426229
+TF-IDF + LR,test,harmless emails,406,0,406,,0.0,0.1625615763546798
+TF-IDF + LR,test_heldout,all,642,642,0,0.48442367601246106,1.0,
+TF-IDF + LR,test_heldout,lang=en,495,495,0,0.5050505050505051,1.0,
+TF-IDF + LR,test_heldout,lang=es,147,147,0,0.41496598639455784,1.0,
+TF-IDF + LR,test_heldout,source=retrieved,642,642,0,0.48442367601246106,1.0,
+TF-IDF + LR,test_native_es,all,32,26,6,0.2692307692307692,1.0,0.0
+TF-IDF + LR,test_native_es,lang=es,32,26,6,0.2692307692307692,1.0,0.0
+TF-IDF + LR,test_native_es,source=user,18,14,4,0.42857142857142855,1.0,0.0
+TF-IDF + LR,test_native_es,source=retrieved,10,8,2,0.125,1.0,0.0
+TF-IDF + LR,test_native_es,hard benign,6,0,6,,,0.0
+TF-IDF + LR,test_other_lang,all,319,127,192,0.14960629921259844,1.0,0.0
+TF-IDF + LR,test_other_lang,source=user,319,127,192,0.14960629921259844,1.0,0.0
+TF-IDF + LR,eval_handwritten,all,69,41,28,0.43902439024390244,0.75,0.21428571428571427
+TF-IDF + LR,eval_handwritten,lang=en,55,32,23,0.40625,0.7222222222222222,0.21739130434782608
+TF-IDF + LR,eval_handwritten,lang=es,13,8,5,0.5,0.8,0.2
+TF-IDF + LR,eval_handwritten,source=user,48,29,19,0.5862068965517241,0.7727272727272727,0.2631578947368421
+TF-IDF + LR,eval_handwritten,source=retrieved,15,9,6,0.1111111111111111,0.5,0.16666666666666666
+TF-IDF + LR,eval_handwritten,hard benign,20,0,20,,0.0,0.3
+Open detector (ProtectAI),test,all,2041,297,1744,0.7744107744107744,0.7744107744107744,0.03841743119266055
+Open detector (ProtectAI),test,lang=en,1239,176,1063,0.7215909090909091,0.7175141242937854,0.047036688617121354
+Open detector (ProtectAI),test,lang=es,802,121,681,0.8512396694214877,0.8583333333333333,0.024963289280469897
+Open detector (ProtectAI),test,source=user,1065,297,768,0.7744107744107744,0.9829059829059829,0.005208333333333333
+Open detector (ProtectAI),test,source=retrieved,976,0,976,,0.0,0.06454918032786885
+Open detector (ProtectAI),test,harmless emails,406,0,406,,0.0,0.0960591133004926
+Open detector (ProtectAI),test_heldout,all,642,642,0,0.102803738317757,1.0,
+Open detector (ProtectAI),test_heldout,lang=en,495,495,0,0.10909090909090909,1.0,
+Open detector (ProtectAI),test_heldout,lang=es,147,147,0,0.08163265306122448,1.0,
+Open detector (ProtectAI),test_heldout,source=retrieved,642,642,0,0.102803738317757,1.0,
+Open detector (ProtectAI),test_native_es,all,32,26,6,0.7692307692307693,0.8333333333333334,0.6666666666666666
+Open detector (ProtectAI),test_native_es,lang=es,32,26,6,0.7692307692307693,0.8333333333333334,0.6666666666666666
+Open detector (ProtectAI),test_native_es,source=user,18,14,4,0.9285714285714286,0.8125,0.75
+Open detector (ProtectAI),test_native_es,source=retrieved,10,8,2,0.5,0.8,0.5
+Open detector (ProtectAI),test_native_es,hard benign,6,0,6,,0.0,0.6666666666666666
+Open detector (ProtectAI),test_other_lang,all,319,127,192,0.2755905511811024,1.0,0.0
+Open detector (ProtectAI),test_other_lang,source=user,319,127,192,0.2755905511811024,1.0,0.0
+Open detector (ProtectAI),eval_handwritten,all,69,41,28,0.7073170731707317,0.8285714285714286,0.21428571428571427
+Open detector (ProtectAI),eval_handwritten,lang=en,55,32,23,0.65625,0.84,0.17391304347826086
+Open detector (ProtectAI),eval_handwritten,lang=es,13,8,5,0.875,0.7777777777777778,0.4
+Open detector (ProtectAI),eval_handwritten,source=user,48,29,19,0.896551724137931,0.8387096774193549,0.2631578947368421
+Open detector (ProtectAI),eval_handwritten,source=retrieved,15,9,6,0.3333333333333333,0.75,0.16666666666666666
+Open detector (ProtectAI),eval_handwritten,hard benign,20,0,20,,0.0,0.3

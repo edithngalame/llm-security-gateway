@@ -9,8 +9,8 @@ Each release has a "done when" checklist. A release isn't done until every box i
 | Release | Status |
 |---|---|
 | v0.1 Foundation | ✅ released (v0.1, v0.1.1) |
-| v0.2 Multilingual dataset | ✅ released (v0.2) |
-| v0.3 Classifier & benchmark | 🚧 next |
+| v0.2 Multilingual dataset | ✅ released (v0.2, v0.2.1) |
+| v0.3 Classifier & benchmark | 🚧 in progress (baselines done) |
 | v0.4 Agent security (core) | planned |
 | Wrap-up: write-up + demo | planned |
 
@@ -46,6 +46,7 @@ The foundation for everything else, and a publishable asset in its own right.
 - [x] Deduplication and leakage check: no text appears in more than one split
 - [x] Notebook 04: dataset card built from the data (sources, licences, labels, limitations) + publishing
 - [x] [Published on Hugging Face](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es) under `edithngalame`, tagged `v0.2`
+- [x] **v0.2.1** fix, found by the v0.3 baselines: `validation` had no emails (thresholds tuned on it blocked ~9% of harmless test emails), and a baseline memorised the harmless email sentences shared by train and test. Validation now gets whole emails, and train / validation / test use separate sentence lists
 
 ---
 
@@ -59,7 +60,8 @@ The foundation for everything else, and a publishable asset in its own right.
 - Run the hand-written red-team and Spanish sets against the model (the lightweight part of the parked adversarial evaluation)
 
 **Done when**
-- [ ] Results table in README with every baseline, and the progress chart updated
+- [x] Baselines measured ([notebook 05](../notebooks/05_baselines.ipynb)): rules, TF-IDF + LR, ProtectAI open detector. They exposed two dataset bugs, fixed in v0.2.1
+- [ ] Results table in README with every baseline and the fine-tuned model, and the progress chart updated
 - [ ] The `xfail` known-limitation tests flip to passing (or honestly explained if not)
 - [ ] Model card on Hugging Face
 

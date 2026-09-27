@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llm-security-gateway"
-version = "0.2.0"
+version = "0.2.1"
 description = "Source-aware prompt injection and data-leak protection for LLM applications"
 requires-python = ">=3.10"
 dependencies = [
