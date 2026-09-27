@@ -4,7 +4,7 @@
 
 A security layer for LLM applications and AI agents. It detects **prompt injection** in English and Spanish, including the harder *indirect* kind hidden in documents, web pages, tool outputs and MCP tool descriptions. It **limits what a compromised agent can do** through taint tracking and tool permissions, and it catches **system prompt and data leakage** in responses.
 
-> Status: v0.2 released: a multilingual prompt injection dataset, **[published on Hugging Face](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es)** (18,442 rows, English + Spanish, direct + indirect attacks). Builds on v0.1 (rule baseline, canary tokens, scan API, live dashboard, backtesting, threat model). 🚧 Next: v0.3 classifier. See the [roadmap](docs/roadmap.md).
+> Status: v0.2.1 released: a multilingual prompt injection dataset, **[published on Hugging Face](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es)** (18,442 rows, English + Spanish, direct + indirect attacks). Builds on v0.1 (rule baseline, canary tokens, scan API, live dashboard, backtesting, threat model). 🚧 Next: v0.3 classifier. See the [roadmap](docs/roadmap.md).
 
 ## Why
 
@@ -120,13 +120,23 @@ First backtest of the rule baseline on the 55-message demo sample (small and ill
 
 ## Results
 
-*Filled in at v0.3 and v0.5: precision / recall / false-positive rate on hard benign data / latency, per source, vs. open-source baselines.*
+### Baselines (v0.3, on dataset v0.2.1)
 
-| Detector | Recall (held-out attacks) | FPR (hard benign) | p95 latency |
-|---|---|---|---|
-| Rules (this repo) | — | — | — |
-| Open baseline(s) | — | — | — |
-| Fine-tuned mDeBERTa-v3 (this repo) | — | — | — |
+Three detectors, scored the same way ([notebook 05](notebooks/05_baselines.ipynb), [raw results](docs/results/baselines/)). Learned detectors pick their block threshold on `validation` only, for at most 1% of harmless messages blocked there.
+
+![Baselines](docs/img/baselines.png)
+
+| Detector | Recall: test | FPR: test | Recall: human Spanish | Recall: unseen attack styles | FPR: hard benign | FPR: harmless emails | CPU ms/text |
+|---|---|---|---|---|---|---|---|
+| Rules (this repo, v0.1) | 24% | 0% | 0% | 0% | 27% | 0% | 0.3 |
+| TF-IDF + logistic regression | **90%** | 6.8% | 27% | **48%** | 23% | 16% | 2.9 |
+| [ProtectAI deberta-v3 v2](https://huggingface.co/protectai/deberta-v3-base-prompt-injection-v2) (open source) | 77% | **3.8%** | **77%** | 10% | 38% | **9.6%** | 290 |
+| Fine-tuned mDeBERTa-v3 (this repo) | *next* | | | | | | |
+
+**What the baselines show**
+- **No baseline is good enough.** TF-IDF does well on data like its training set but learned *wording*, not intent: it drops to 27% on human-translated Spanish and 48% on unseen attack styles. ProtectAI (English-only by design) misses 90% of attacks hidden in emails, blocks over a third of hard benign messages and takes 290 ms per message on CPU.
+- **The baselines found two bugs in my own dataset.** In v0.2, `validation` contained no emails, so thresholds tuned on it blocked ~9% of harmless test emails. And TF-IDF had memorised the 25 harmless email sentences shared by train and test. Dataset [v0.2.1](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es) fixes both. The honest numbers are lower: TF-IDF's recall on unseen attack styles fell from 89% to 48%.
+- **Targets for the fine-tuned model:** beat the best baseline on every column, with at least 80% recall on human Spanish, 70% on unseen styles, at most 5% FPR on harmless emails, and under 50 ms per message on CPU after ONNX export.
 
 ## Roadmap
 
