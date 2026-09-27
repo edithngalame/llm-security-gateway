@@ -40,13 +40,11 @@ The foundation for everything else, and a publishable asset in its own right.
 - **Shortcut fixes**: "Spanish = safe" and "email = attack" both measured and corrected
 - **Hard benign** examples: harmless text that looks like attacks, in both languages
 - Held-out evaluation sets: unseen attack styles, other languages, hand-written sets
-- **Tool outputs and poisoned MCP tool descriptions** (small, targeted set)
 
 **Done when**
 - [x] Reproducible Colab notebooks build the dataset from licensed sources (01 collect, 02 splits + Spanish)
 - [x] Deduplication and leakage check: no text appears in more than one split
-- [ ] Notebook 03: tool outputs + poisoned MCP tool descriptions
-- [ ] Dataset card: sources, licences, label definitions, known biases and limitations
+- [x] Notebook 04: dataset card built from the data (sources, licences, labels, limitations) + publishing
 - [ ] Published on Hugging Face under `edithngalame`
 
 ---
@@ -97,7 +95,7 @@ Parked on purpose to keep the project focused. Each could become its own release
 - **Adversarial evaluation**: garak and promptfoo runs, an adaptive LLM attacker, a public leaderboard
 - **Shadow mode and traffic capture**: test a new detector on live traffic without enforcing it
 - **PII and secret scanning** of responses (Presidio)
-- **MCP tool description scanning** at tool registration time
+- **Tool-output and MCP tool-description attack data** for the dataset (v0.4's tool permissions cover this risk in the meantime), and MCP description scanning at tool registration time
 - **Easy adoption**: PyPI package, LangChain / LlamaIndex integrations
 - **Compliance reporting**: audit reports mapped to OWASP, NIST AI RMF and the EU AI Act
 - **Hosted demo**: public dashboard running on synthetic traffic

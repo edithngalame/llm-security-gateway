@@ -124,7 +124,7 @@ First backtest of the rule baseline on the 55-message demo sample (small and ill
 Scoped to **v0.4 plus a write-up**: a published multilingual dataset, a trained detector with measured results, and a live agent demo. Details and "done when" criteria in [docs/roadmap.md](docs/roadmap.md).
 
 - [x] **v0.1 Foundation**: rules baseline, canary tokens, `/v1/scan`, live dashboard, backtesting, threat model, CI
-- [ ] **v0.2 Multilingual dataset** 🚧: direct + indirect + tool attacks, English + Spanish, hard benign, shortcut fixes, published on Hugging Face
+- [ ] **v0.2 Multilingual dataset** 🚧: direct + indirect attacks, English + Spanish, hard benign, shortcut fixes, published on Hugging Face
 - [ ] **v0.3 Classifier & benchmark**: fine-tuned mDeBERTa-v3 (ONNX) vs. baselines, per-language and per-source results
 - [ ] **v0.4 Agent security**: OpenAI-compatible proxy, taint tracking, tool permissions, hijacked-vs-protected agent demo
 - [ ] **Wrap-up**: technical write-up and demo video
