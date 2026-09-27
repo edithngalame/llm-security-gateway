@@ -4,7 +4,7 @@
 
 A security layer for LLM applications and AI agents. It detects **prompt injection** in English and Spanish, including the harder *indirect* kind hidden in documents, web pages, tool outputs and MCP tool descriptions. It **limits what a compromised agent can do** through taint tracking and tool permissions, and it catches **system prompt and data leakage** in responses.
 
-> Status: v0.1.1 released (rule baseline, canary tokens, scan API, live dashboard, backtesting, threat model). 🚧 v0.2 multilingual dataset in progress. See the [roadmap](docs/roadmap.md).
+> Status: v0.2 released: a multilingual prompt injection dataset, **[published on Hugging Face](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es)** (18,442 rows, English + Spanish, direct + indirect attacks). Builds on v0.1 (rule baseline, canary tokens, scan API, live dashboard, backtesting, threat model). 🚧 Next: v0.3 classifier. See the [roadmap](docs/roadmap.md).
 
 ## Why
 
@@ -28,6 +28,15 @@ See the full [threat model](docs/threat-model.md).
 The rules catch **0% of Spanish attacks and 0% of paraphrased ones**. Closing that gap is the job of the multilingual classifier in v0.3, and the progress chart below tracks it release by release.
 
 <img src="docs/img/progress.svg" alt="Progress across releases" width="70%">
+
+## Dataset
+
+**[edithngalame/prompt-injection-en-es](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es)**: 18,442 texts (5,621 injections) in English and Spanish, each labelled with where it entered the AI's context (`user` or `retrieved`). It includes hard benign examples, a human-translated Spanish test set, held-out sets for unseen attack styles and languages, and two measured shortcut fixes ("Spanish = safe", "email = attack"). Built by reproducible Colab notebooks in [`notebooks/`](notebooks/).
+
+```python
+from datasets import load_dataset
+ds = load_dataset("edithngalame/prompt-injection-en-es")
+```
 
 ## Architecture
 
@@ -124,7 +133,7 @@ First backtest of the rule baseline on the 55-message demo sample (small and ill
 Scoped to **v0.4 plus a write-up**: a published multilingual dataset, a trained detector with measured results, and a live agent demo. Details and "done when" criteria in [docs/roadmap.md](docs/roadmap.md).
 
 - [x] **v0.1 Foundation**: rules baseline, canary tokens, `/v1/scan`, live dashboard, backtesting, threat model, CI
-- [ ] **v0.2 Multilingual dataset** 🚧: direct + indirect attacks, English + Spanish, hard benign, shortcut fixes, published on Hugging Face
+- [x] **v0.2 Multilingual dataset**: direct + indirect attacks, English + Spanish, hard benign, shortcut fixes, [published on Hugging Face](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es)
 - [ ] **v0.3 Classifier & benchmark**: fine-tuned mDeBERTa-v3 (ONNX) vs. baselines, per-language and per-source results
 - [ ] **v0.4 Agent security**: OpenAI-compatible proxy, taint tracking, tool permissions, hijacked-vs-protected agent demo
 - [ ] **Wrap-up**: technical write-up and demo video

@@ -9,8 +9,8 @@ Each release has a "done when" checklist. A release isn't done until every box i
 | Release | Status |
 |---|---|
 | v0.1 Foundation | ✅ released (v0.1, v0.1.1) |
-| v0.2 Multilingual dataset | 🚧 in progress |
-| v0.3 Classifier & benchmark | planned |
+| v0.2 Multilingual dataset | ✅ released (v0.2) |
+| v0.3 Classifier & benchmark | 🚧 next |
 | v0.4 Agent security (core) | planned |
 | Wrap-up: write-up + demo | planned |
 
@@ -31,7 +31,7 @@ Rule-based baseline, canary tokens, `/v1/scan` API, threat model, tests, Docker,
 
 ---
 
-## v0.2 — Multilingual attack dataset 🚧
+## v0.2 — Multilingual attack dataset ✅
 The foundation for everything else, and a publishable asset in its own right.
 
 **Scope**
@@ -45,7 +45,7 @@ The foundation for everything else, and a publishable asset in its own right.
 - [x] Reproducible Colab notebooks build the dataset from licensed sources (01 collect, 02 splits + Spanish)
 - [x] Deduplication and leakage check: no text appears in more than one split
 - [x] Notebook 04: dataset card built from the data (sources, licences, labels, limitations) + publishing
-- [ ] Published on Hugging Face under `edithngalame`
+- [x] [Published on Hugging Face](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es) under `edithngalame`, tagged `v0.2`
 
 ---
 
