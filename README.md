@@ -4,7 +4,7 @@
 
 A security layer for LLM applications and AI agents. It detects **prompt injection** in English and Spanish, including the harder *indirect* kind hidden in documents, web pages, tool outputs and MCP tool descriptions. It **limits what a compromised agent can do** through taint tracking and tool permissions, and it catches **system prompt and data leakage** in responses.
 
-> Status: v0.2 released: a multilingual prompt injection dataset, **[published on Hugging Face](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es)** (18,442 rows, English + Spanish, direct + indirect attacks). Builds on v0.1 (rule baseline, canary tokens, scan API, live dashboard, backtesting, threat model). 🚧 Next: v0.3 classifier. See the [roadmap](docs/roadmap.md).
+> Status: v0.2.1 released: a multilingual prompt injection dataset, **[published on Hugging Face](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es)** (18,442 rows, English + Spanish, direct + indirect attacks). Builds on v0.1 (rule baseline, canary tokens, scan API, live dashboard, backtesting, threat model). 🚧 Next: v0.3 classifier. See the [roadmap](docs/roadmap.md).
 
 ## Why
 
