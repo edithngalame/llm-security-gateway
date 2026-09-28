@@ -51,7 +51,7 @@ User / app ──► Gateway ──► LLM ──► Gateway ──► back to u
 
 Detection layers (any layer can block):
 1. **Rules**: normalisation (Unicode, zero-width chars, base64) + transparent patterns. Fast, explainable baseline.
-2. **Classifier** *(v0.3)*: fine-tuned multilingual mDeBERTa-v3, exported to ONNX.
+2. **Classifier** *(v0.3)*: fine-tuned multilingual mDeBERTa-v3, run with ONNX Runtime ([model on Hugging Face](https://huggingface.co/edithngalame/mdeberta-v3-prompt-injection-en-es)). Optional: see [Add the classifier](#add-the-classifier).
 3. **Output checks**: canary tokens planted in the system prompt; markdown-image exfiltration stripping *(v0.4)*.
 4. **Action control** *(v0.4)*: once untrusted content enters a session, high-risk tools are blocked or need human approval, even when no attack was detected.
 
@@ -75,6 +75,18 @@ curl -s localhost:8000/v1/scan -H 'content-type: application/json' \
 ```
 
 Docker: `docker build -t llm-gateway . && docker run -p 8000:8000 llm-gateway`
+
+## Add the classifier
+
+The rules run with no extra dependencies. To add the fine-tuned classifier as a second layer:
+
+```bash
+pip install -e ".[ml]"                     # ONNX Runtime + tokenizer, no PyTorch needed
+$env:GW_CLASSIFIER="1"                     # Windows PowerShell (Mac/Linux: export GW_CLASSIFIER=1)
+uvicorn gateway.main:app                   # first start downloads the model once (~1.1 GB)
+```
+
+`/health` then lists `rules,classifier`, and blocked messages show which layer caught them. Backtest with both layers: `python -m gateway.backtest data/samples/demo_traffic.jsonl --classifier`. Tests against the real model: `pytest tests/test_classifier.py` with `GW_CLASSIFIER=1` set.
 
 ## Watch it live
 
@@ -131,12 +143,13 @@ Four detectors, scored the same way ([notebook 05](notebooks/05_baselines.ipynb)
 | Rules (this repo, v0.1) | 24% | 0% | 0% | 0% | 27% | 0% | 0.3 |
 | TF-IDF + logistic regression | **90%** | 6.8% | 27% | **48%** | 23% | 16% | 2.9 |
 | [ProtectAI deberta-v3 v2](https://huggingface.co/protectai/deberta-v3-base-prompt-injection-v2) (open source) | 77% | **3.8%** | **77%** | 10% | 38% | **9.6%** | 290 |
-| **Fine-tuned mDeBERTa-v3 (this repo)** | **98%** | **3.7%** | **77%** | **78%** | 65% | **6.4%** | 306 |
+| **Fine-tuned mDeBERTa-v3 (this repo)** | **98%** | **3.7%** | **77%** | **78%** | 65% | **6.4%** | 277 (ONNX) |
 
 **What fine-tuning bought**
 - **Best or tied-best on every attack column**: 98% of test attacks, 78% of attacks in unseen styles (TF-IDF: 48%, ProtectAI: 10%), and 91% of attacks in German, French, Italian and Portuguese, languages it never saw labelled examples in. That last number is the multilingual pre-training at work.
 - **Lowest false-alarm rates on test and on harmless emails.**
-- **Weaknesses, measured:** it blocks 65% of *hard benign* messages (harmless text that talks about AI, rules or instructions). The training data has almost none of these, so the model learned "mentions instructions = attack". It's also as slow as ProtectAI on CPU (306 ms). Hard negatives in training and ONNX export are the next steps.
+- **Weaknesses, measured:** it blocks 65% of *hard benign* messages (harmless text that talks about AI, rules or instructions). The training data has almost none of these, so the model learned "mentions instructions = attack". Hard negatives in training are the planned fix.
+- **Speed**: exported to ONNX (same scores as PyTorch to 0.0001), it runs 2.1× faster: **99 ms** for a typical short chat message and 277 ms median on a 2-core Colab CPU, so the 50 ms target is missed on that hardware. int8 quantisation was tried and **broke the model** (validation PR-AUC 0.997 → 0.46, a known DeBERTa-v3 issue), so the gateway ships fp32. Details: [notebook 07](notebooks/07_export_onnx.ipynb).
 - Targets: unseen styles ≥ 70% **met**. Human Spanish 77% (target 80%: one more of 26 attacks), harmless-email FPR 6.4% (target 5%) and test FPR 3.7% (target 2%) **missed**.
 
 **What the baselines show**
