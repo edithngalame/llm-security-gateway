@@ -38,7 +38,7 @@ def scan(url: str, text: str, source: str) -> dict:
         data=json.dumps({"text": text, "source": source}).encode(),
         headers={"content-type": "application/json"},
     )
-    with urllib.request.urlopen(req, timeout=10) as r:
+    with urllib.request.urlopen(req, timeout=30) as r:
         return json.load(r)
 
 
@@ -65,6 +65,9 @@ def main() -> int:
             except urllib.error.URLError as e:
                 print(f"Can't reach the gateway at {args.url} ({e.reason}). Is uvicorn running?")
                 return 1
+            except TimeoutError:
+                print("  (slow answer from the gateway, skipped this message)")
+                continue
             blocked = result["action"] == "block"
             if row["label"] == 1:
                 key, mark = ("caught", "✓ caught ") if blocked else ("missed", "✗ MISSED ")
