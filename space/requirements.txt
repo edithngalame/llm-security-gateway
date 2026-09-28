@@ -1,0 +1,2 @@
+# The real gateway code (rules + classifier), pinned to the v0.3 release
+llm-security-gateway[ml] @ git+https://github.com/edithngalame/llm-security-gateway@v0.3
