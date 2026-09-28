@@ -18,7 +18,8 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from gateway import __version__
-from gateway.detectors import RuleDetector, Source
+from gateway.config import build_detectors
+from gateway.detectors import Source
 from gateway.events import EventLog
 from gateway.policy import Action, Policy
 
@@ -26,7 +27,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 log = logging.getLogger("gateway")
 
 app = FastAPI(title="LLM Security Gateway", version=__version__)
-policy = Policy(detectors=[RuleDetector()])
+policy = Policy(detectors=build_detectors())   # rules, plus the classifier if GW_CLASSIFIER=1
 events = EventLog()
 STATIC = Path(__file__).parent / "static"
 
@@ -52,7 +53,7 @@ class ScanResponse(BaseModel):
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok", "version": __version__}
+    return {"status": "ok", "version": __version__, "detectors": ",".join(d.name for d in policy.detectors)}
 
 
 @app.post("/v1/scan", response_model=ScanResponse)

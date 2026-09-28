@@ -10,8 +10,8 @@ Each release has a "done when" checklist. A release isn't done until every box i
 |---|---|
 | v0.1 Foundation | ✅ released (v0.1, v0.1.1) |
 | v0.2 Multilingual dataset | ✅ released (v0.2, v0.2.1) |
-| v0.3 Classifier & benchmark | 🚧 in progress (baselines done) |
-| v0.4 Agent security (core) | planned |
+| v0.3 Classifier & benchmark | ✅ released (v0.3) |
+| v0.4 Agent security (core) | 🚧 next |
 | Wrap-up: write-up + demo | planned |
 
 ---
@@ -50,7 +50,7 @@ The foundation for everything else, and a publishable asset in its own right.
 
 ---
 
-## v0.3 — Classifier + first benchmark
+## v0.3 — Classifier + first benchmark ✅
 **Scope**
 - Baselines: rules, TF-IDF + logistic regression, and at least one open-source detector
 - Fine-tune **mDeBERTa-v3-base** (the multilingual variant: plain DeBERTa-v3 is English-only) on Colab T4
@@ -63,9 +63,10 @@ The foundation for everything else, and a publishable asset in its own right.
 - [x] Baselines measured ([notebook 05](../notebooks/05_baselines.ipynb)): rules, TF-IDF + LR, ProtectAI open detector. They exposed two dataset bugs, fixed in v0.2.1
 - [x] Fine-tuned mDeBERTa-v3 ([notebook 06](../notebooks/06_finetune_mdeberta.ipynb)): results table and chart in README
 - [x] Over-defense measured and documented: 65% of hard benign messages blocked. Fix parked under Future work
-- [ ] ONNX export + gateway integration, CPU latency measured
-- [ ] The `xfail` known-limitation tests flip to passing (or honestly explained if not)
-- [ ] Model card on Hugging Face
+- [x] ONNX export ([notebook 07](../notebooks/07_export_onnx.ipynb)): same scores as PyTorch, 2.1× faster (99 ms for short messages on a 2-core CPU). int8 quantisation tried and rejected: it broke the model
+- [x] Gateway integration: `GW_CLASSIFIER=1` adds the classifier as a second layer; demo backtest recall 56% → 97%, recorded in the progress chart
+- [x] The attacks listed as known limitations of the rules (paraphrase, Spanish, French) are blocked by the classifier: live tests in `tests/test_classifier.py`
+- [x] [Model card on Hugging Face](https://huggingface.co/edithngalame/mdeberta-v3-prompt-injection-en-es)
 
 ---
 

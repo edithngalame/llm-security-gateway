@@ -1,0 +1,51 @@
+{
+  "release": "v0.3-onnx",
+  "model": "edithngalame/mdeberta-v3-prompt-injection-en-es",
+  "dataset_revision": "v0.2.1",
+  "shipped": "onnx/model.onnx (fp32)",
+  "threshold_margin": -3.335,
+  "cpu_cores": 2,
+  "parity": {
+    "max score difference": 0.0001,
+    "same decision": 1.0
+  },
+  "latency_ms": {
+    "PyTorch fp32": {
+      "median": 583.1994,
+      "p95": 1597.8287,
+      "median_short_messages": 393.9635
+    },
+    "ONNX fp32": {
+      "median": 276.8953,
+      "p95": 1347.1788,
+      "median_short_messages": 98.6578
+    }
+  },
+  "message_tokens": {
+    "median": 69,
+    "p95": 296
+  },
+  "int8_trial": {
+    "PyTorch fp32": {
+      "correlation": 1.0,
+      "val_pr_auc": 0.9973,
+      "median_ms": 586
+    },
+    "ONNX fp32": {
+      "correlation": 1.0,
+      "val_pr_auc": 0.9973,
+      "median_ms": 253
+    },
+    "ONNX int8 (all layers)": {
+      "correlation": 0.1813,
+      "val_pr_auc": 0.46,
+      "median_ms": 159
+    },
+    "ONNX int8 (MatMul, per channel)": {
+      "correlation": 0.1603,
+      "val_pr_auc": 0.425,
+      "median_ms": 168
+    }
+  },
+  "size_mb": 1116
+}
