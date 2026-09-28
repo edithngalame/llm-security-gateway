@@ -31,7 +31,8 @@ from html import escape
 from pathlib import Path
 
 from gateway import charts
-from gateway.detectors import RuleDetector, Source
+from gateway.config import build_detectors
+from gateway.detectors import Source
 from gateway.policy import DEFAULT_THRESHOLDS, Action, Policy, Thresholds
 
 
@@ -371,13 +372,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--charts", help="directory to write SVG charts into (e.g. docs/img)")
     ap.add_argument("--record", metavar="VERSION", help="save this run to the release history, e.g. v0.1")
     ap.add_argument("--quiet", action="store_true", help="don't print the markdown report")
+    ap.add_argument("--classifier", action="store_true",
+                    help="add the fine-tuned classifier as a second layer (needs: pip install -e \".[ml]\")")
     args = ap.parse_args(argv)
     dataset = Path(args.traffic).name
 
     samples = load(args.traffic)
-    reports = [run(samples, Policy([RuleDetector()]), "current")]
+    detectors = build_detectors(True if args.classifier else None)
+    reports = [run(samples, Policy(detectors), "current")]
     if args.block:
-        alt = Policy([RuleDetector()], thresholds=_parse_overrides(args.block))
+        alt = Policy(detectors, thresholds=_parse_overrides(args.block))
         reports.append(run(samples, alt, "override: " + ", ".join(args.block)))
 
     history = record(reports[0], args.record, dataset) if args.record else load_history(dataset=dataset)

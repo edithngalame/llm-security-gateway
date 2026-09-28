@@ -4,7 +4,7 @@
 
 A security layer for LLM applications and AI agents. It detects **prompt injection** in English and Spanish, including the harder *indirect* kind hidden in documents, web pages, tool outputs and MCP tool descriptions. It **limits what a compromised agent can do** through taint tracking and tool permissions, and it catches **system prompt and data leakage** in responses.
 
-> Status: v0.2.1 released: a multilingual prompt injection dataset, **[published on Hugging Face](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es)** (18,442 rows, English + Spanish, direct + indirect attacks). Builds on v0.1 (rule baseline, canary tokens, scan API, live dashboard, backtesting, threat model). 🚧 Next: v0.3 classifier. See the [roadmap](docs/roadmap.md).
+> Status: **v0.3 released**: a fine-tuned multilingual classifier ([model](https://huggingface.co/edithngalame/mdeberta-v3-prompt-injection-en-es)) running in the gateway next to the rules, trained on my own [EN-ES dataset](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es). Builds on v0.1 (rule baseline, canary tokens, scan API, live dashboard, backtesting, threat model) and v0.2 (dataset). 🚧 Next: v0.4 agent security. See the [roadmap](docs/roadmap.md).
 
 ## Why
 
@@ -51,7 +51,7 @@ User / app ──► Gateway ──► LLM ──► Gateway ──► back to u
 
 Detection layers (any layer can block):
 1. **Rules**: normalisation (Unicode, zero-width chars, base64) + transparent patterns. Fast, explainable baseline.
-2. **Classifier** *(v0.3)*: fine-tuned multilingual mDeBERTa-v3, exported to ONNX.
+2. **Classifier** *(v0.3)*: fine-tuned multilingual mDeBERTa-v3, run with ONNX Runtime ([model on Hugging Face](https://huggingface.co/edithngalame/mdeberta-v3-prompt-injection-en-es)). Optional: see [Add the classifier](#add-the-classifier).
 3. **Output checks**: canary tokens planted in the system prompt; markdown-image exfiltration stripping *(v0.4)*.
 4. **Action control** *(v0.4)*: once untrusted content enters a session, high-risk tools are blocked or need human approval, even when no attack was detected.
 
@@ -75,6 +75,18 @@ curl -s localhost:8000/v1/scan -H 'content-type: application/json' \
 ```
 
 Docker: `docker build -t llm-gateway . && docker run -p 8000:8000 llm-gateway`
+
+## Add the classifier
+
+The rules run with no extra dependencies. To add the fine-tuned classifier as a second layer:
+
+```bash
+pip install -e ".[ml]"                     # ONNX Runtime + tokenizer, no PyTorch needed
+$env:GW_CLASSIFIER="1"                     # Windows PowerShell (Mac/Linux: export GW_CLASSIFIER=1)
+uvicorn gateway.main:app                   # first start downloads the model once (~1.1 GB)
+```
+
+`/health` then lists `rules,classifier`, and blocked messages show which layer caught them. Backtest with both layers: `python -m gateway.backtest data/samples/demo_traffic.jsonl --classifier`. Tests against the real model: `pytest tests/test_classifier.py` with `GW_CLASSIFIER=1` set.
 
 ## Watch it live
 
@@ -112,11 +124,14 @@ python -m gateway.backtest data/samples/demo_traffic.jsonl --html reports/backte
 python -m gateway.backtest data/samples/demo_traffic.jsonl --record v0.1 --charts docs/img --html docs/report/index.html --quiet
 ```
 
-First backtest of the rule baseline on the 55-message demo sample (small and illustrative: the real evaluation set is v0.2):
+Backtests on the 55-message demo sample (small and illustrative: the full evaluation is under [Results](#results)):
 
 | | Recall | FPR | Spanish recall | Paraphrase recall |
 |---|---|---|---|---|
-| Rules | 56% | 13% | 0% | 0% |
+| Rules (v0.1) | 56% | 13% | 0% | 0% |
+| Rules + classifier (v0.3) | **97%** | 35% | **86%** | **100%** |
+
+The classifier catches almost everything the rules missed. The price is over-defense on chat messages: harmless *user* messages are blocked 47% of the time (e.g. *"Ignore the typo in my last message"*), while harmless *retrieved documents* are blocked 0% of the time. p95 latency with the classifier: 236 ms on a laptop CPU.
 
 ## Results
 
@@ -131,12 +146,13 @@ Four detectors, scored the same way ([notebook 05](notebooks/05_baselines.ipynb)
 | Rules (this repo, v0.1) | 24% | 0% | 0% | 0% | 27% | 0% | 0.3 |
 | TF-IDF + logistic regression | **90%** | 6.8% | 27% | **48%** | 23% | 16% | 2.9 |
 | [ProtectAI deberta-v3 v2](https://huggingface.co/protectai/deberta-v3-base-prompt-injection-v2) (open source) | 77% | **3.8%** | **77%** | 10% | 38% | **9.6%** | 290 |
-| **Fine-tuned mDeBERTa-v3 (this repo)** | **98%** | **3.7%** | **77%** | **78%** | 65% | **6.4%** | 306 |
+| **Fine-tuned mDeBERTa-v3 (this repo)** | **98%** | **3.7%** | **77%** | **78%** | 65% | **6.4%** | 277 (ONNX) |
 
 **What fine-tuning bought**
 - **Best or tied-best on every attack column**: 98% of test attacks, 78% of attacks in unseen styles (TF-IDF: 48%, ProtectAI: 10%), and 91% of attacks in German, French, Italian and Portuguese, languages it never saw labelled examples in. That last number is the multilingual pre-training at work.
 - **Lowest false-alarm rates on test and on harmless emails.**
-- **Weaknesses, measured:** it blocks 65% of *hard benign* messages (harmless text that talks about AI, rules or instructions). The training data has almost none of these, so the model learned "mentions instructions = attack". It's also as slow as ProtectAI on CPU (306 ms). Hard negatives in training and ONNX export are the next steps.
+- **Weaknesses, measured:** it blocks 65% of *hard benign* messages (harmless text that talks about AI, rules or instructions). The training data has almost none of these, so the model learned "mentions instructions = attack". Hard negatives in training are the planned fix.
+- **Speed**: exported to ONNX (same scores as PyTorch to 0.0001), it runs 2.1× faster: **99 ms** for a typical short chat message and 277 ms median on a 2-core Colab CPU, so the 50 ms target is missed on that hardware. int8 quantisation was tried and **broke the model** (validation PR-AUC 0.997 → 0.46, a known DeBERTa-v3 issue), so the gateway ships fp32. Details: [notebook 07](notebooks/07_export_onnx.ipynb).
 - Targets: unseen styles ≥ 70% **met**. Human Spanish 77% (target 80%: one more of 26 attacks), harmless-email FPR 6.4% (target 5%) and test FPR 3.7% (target 2%) **missed**.
 
 **What the baselines show**
@@ -150,7 +166,7 @@ Scoped to **v0.4 plus a write-up**: a published multilingual dataset, a trained 
 
 - [x] **v0.1 Foundation**: rules baseline, canary tokens, `/v1/scan`, live dashboard, backtesting, threat model, CI
 - [x] **v0.2 Multilingual dataset**: direct + indirect attacks, English + Spanish, hard benign, shortcut fixes, [published on Hugging Face](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es)
-- [ ] **v0.3 Classifier & benchmark**: fine-tuned mDeBERTa-v3 (ONNX) vs. baselines, per-language and per-source results
+- [x] **v0.3 Classifier & benchmark**: fine-tuned mDeBERTa-v3 (ONNX) vs. baselines, per-language and per-source results, running in the gateway
 - [ ] **v0.4 Agent security**: OpenAI-compatible proxy, taint tracking, tool permissions, hijacked-vs-protected agent demo
 - [ ] **Wrap-up**: technical write-up and demo video
 
