@@ -4,7 +4,7 @@
 
 A security layer for LLM applications and AI agents. It detects **prompt injection** in English and Spanish, including the harder *indirect* kind hidden in documents, web pages, tool outputs and MCP tool descriptions. It **limits what a compromised agent can do** through taint tracking and tool permissions, and it catches **system prompt and data leakage** in responses.
 
-> Status: v0.2.1 released: a multilingual prompt injection dataset, **[published on Hugging Face](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es)** (18,442 rows, English + Spanish, direct + indirect attacks). Builds on v0.1 (rule baseline, canary tokens, scan API, live dashboard, backtesting, threat model). 🚧 Next: v0.3 classifier. See the [roadmap](docs/roadmap.md).
+> Status: **v0.3 released**: a fine-tuned multilingual classifier ([model](https://huggingface.co/edithngalame/mdeberta-v3-prompt-injection-en-es)) running in the gateway next to the rules, trained on my own [EN-ES dataset](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es). Builds on v0.1 (rule baseline, canary tokens, scan API, live dashboard, backtesting, threat model) and v0.2 (dataset). 🚧 Next: v0.4 agent security. See the [roadmap](docs/roadmap.md).
 
 ## Why
 
@@ -124,11 +124,14 @@ python -m gateway.backtest data/samples/demo_traffic.jsonl --html reports/backte
 python -m gateway.backtest data/samples/demo_traffic.jsonl --record v0.1 --charts docs/img --html docs/report/index.html --quiet
 ```
 
-First backtest of the rule baseline on the 55-message demo sample (small and illustrative: the real evaluation set is v0.2):
+Backtests on the 55-message demo sample (small and illustrative: the full evaluation is under [Results](#results)):
 
 | | Recall | FPR | Spanish recall | Paraphrase recall |
 |---|---|---|---|---|
-| Rules | 56% | 13% | 0% | 0% |
+| Rules (v0.1) | 56% | 13% | 0% | 0% |
+| Rules + classifier (v0.3) | **97%** | 35% | **86%** | **100%** |
+
+The classifier catches almost everything the rules missed. The price is over-defense on chat messages: harmless *user* messages are blocked 47% of the time (e.g. *"Ignore the typo in my last message"*), while harmless *retrieved documents* are blocked 0% of the time. p95 latency with the classifier: 236 ms on a laptop CPU.
 
 ## Results
 
@@ -163,7 +166,7 @@ Scoped to **v0.4 plus a write-up**: a published multilingual dataset, a trained 
 
 - [x] **v0.1 Foundation**: rules baseline, canary tokens, `/v1/scan`, live dashboard, backtesting, threat model, CI
 - [x] **v0.2 Multilingual dataset**: direct + indirect attacks, English + Spanish, hard benign, shortcut fixes, [published on Hugging Face](https://huggingface.co/datasets/edithngalame/prompt-injection-en-es)
-- [ ] **v0.3 Classifier & benchmark**: fine-tuned mDeBERTa-v3 (ONNX) vs. baselines, per-language and per-source results
+- [x] **v0.3 Classifier & benchmark**: fine-tuned mDeBERTa-v3 (ONNX) vs. baselines, per-language and per-source results, running in the gateway
 - [ ] **v0.4 Agent security**: OpenAI-compatible proxy, taint tracking, tool permissions, hijacked-vs-protected agent demo
 - [ ] **Wrap-up**: technical write-up and demo video
 
